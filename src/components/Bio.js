@@ -1,6 +1,6 @@
 import React from 'react'
 import { StaticQuery, graphql } from 'gatsby'
-import Image from 'gatsby-image'
+// import Image from 'gatsby-image'
 
 import { rhythm } from '../utils/typography'
 
@@ -8,8 +8,8 @@ function Bio() {
   return (
     <StaticQuery
       query={bioQuery}
-      render={data => {
-        const { author, social } = data.site.siteMetadata
+      render={() => {
+        // const { author } = data.site.siteMetadata
         return (
           <div
             style={{
@@ -17,7 +17,7 @@ function Bio() {
               marginBottom: rhythm(2.5),
             }}
           >
-            <Image
+            {/* <Image
               fixed={data.avatar.childImageSharp.fixed}
               alt={author}
               style={{
@@ -29,15 +29,7 @@ function Bio() {
               imgStyle={{
                 borderRadius: `50%`,
               }}
-            />
-            <p>
-              Written by <strong>{author}</strong> who lives and works in San
-              Francisco building useful things.
-              {` `}
-              <a href={`https://twitter.com/${social.twitter}`}>
-                You should follow him on Twitter
-              </a>
-            </p>
+            /> */}
           </div>
         )
       }}
@@ -57,9 +49,6 @@ const bioQuery = graphql`
     site {
       siteMetadata {
         author
-        social {
-          twitter
-        }
       }
     }
   }
