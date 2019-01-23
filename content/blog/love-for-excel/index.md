@@ -1,5 +1,5 @@
 ---
-title: 'Excel - my first (technology) love'
+title: 'My First (Technology) Love'
 date: '2019-01-23T02:40:27.765Z'
 ---
 
@@ -7,7 +7,7 @@ date: '2019-01-23T02:40:27.765Z'
 
 <sub>Image from [tweet](https://twitter.com/office/status/326733209779990528) by Microsoft's [Office account](https://twitter.com/Office)</sub>
 
-_I originally wrote this in March of 2016 when I was between projects_
+_I originally wrote this in March of 2016 when I was between projects. I'm not entirely sure why._
 
 I remember when we first met. I was in college. You were 20 years old but mature and feature rich for your age. Everyone thought you were boring, and I did too. But that was before I really _knew_ you. And being the immature 21 year old that I was, I just wasn’t ready to commit to the time and patience that was necessary to appreciate your intricacies.
 
@@ -23,4 +23,4 @@ However, after the initial honeymoon phase, the passion that we shared started t
 
 Our breakup was abrupt and I apologize that I didn’t offer more of an explanation or warning but know this; without you, I wouldn’t be the programmer I am today. You showed me how to love (technology tools) and love myself (through developing programmatic solutions to repetitive tasks).
 
-I will not forget that. And I will not forget you.
+I will never forget that. And I will never forget you.
