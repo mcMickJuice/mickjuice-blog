@@ -9,7 +9,6 @@ function Bio() {
     <StaticQuery
       query={bioQuery}
       render={data => {
-        console.log(data)
         const { author } = data.site.siteMetadata
         return (
           <div
@@ -24,13 +23,17 @@ function Bio() {
               style={{
                 marginRight: rhythm(1 / 2),
                 marginBottom: 0,
-                minWidth: 50,
+                minWidth: 100,
                 borderRadius: `100%`,
               }}
               imgStyle={{
                 borderRadius: `50%`,
               }}
             />
+            <div>
+              My name is Mike and this is my blog. I write about technology,
+              work and, at times, my personal life.
+            </div>
           </div>
         )
       }}
