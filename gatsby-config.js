@@ -3,6 +3,7 @@ module.exports = {
     title: `Mike's Blog`,
     author: `Mike Joyce`,
     description: `Blog of Mick Juice`,
+    siteUrl: `https://blog.mickjuice.com/`,
   },
   plugins: [
     {
