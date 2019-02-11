@@ -5,37 +5,35 @@ date: '2019-02-10T02:40:27.765Z'
 
 ![Captain James Hook from Hook](./hook.jpg)
 
-<!-- Quick intro to hooks -->
-
 Unless you've been living under a (technology) rock, you are well aware that the React team released the long anticipated Hooks feature last week.
 
-Hooks allow developers to express state management, effect side...effects and perform other tasks that were heretofore accomplished primarily through class components. With hooks, these tasks can be performed using React functional components (aka javascript functions that return React elements). The reasons for these are myriad, ranging from the elimination of requirement on JavaScript classes to more concise code to more reuseable code.
+Hooks allow developers to express state management and perform side effects that were heretofore accomplished primarily through class components. The benefits from using hooks are myriad, ranging from the elimination of the dependency on JavaScript classes to more concise code and reuseable code.
 
-Whatever the reasons, the community has been buzzing with excitement regarding this new feature since their announcement at React Conf (TODO: SOURCE?) late last year.
+Whatever the reasons, the community has been buzzing with excitement regarding this new feature since their announcement at [React Conf last year](https://www.youtube.com/watch?v=dpw9EHDh2bM).
 
-While many React devs have been experimenting with hooks since their announcement, I have largely ignored the feature until its release.
+While many React devs have been experimenting with hooks since their announcement, I have largely ignored the feature until its release. On the morning of the 16.8 release ([the one with hooks](https://reactjs.org/blog/2019/02/06/react-v16.8.0.html)), I played around with hooks and even introduced them to an app of mine.
 
-On the morning of the 16.8 release (the one with hooks), I played around with hooks and even introduced them to an app of mine.
+And I fell in love.
 
-I can't overstate how happy I am with React hooks... (TODO: update this). As a result of my excitement, I wanted to write a few posts about my experience with hooks.
+As a result of my excitement for this new feature, I wanted to write a few posts about my experience with React hooks.
 
-In this post, I will show how I refactored a search form a pure "class based" approach to using hooks. In a post to follow, I'll show the reusability of hooks, comparing them with other reuse patterns in React. Finally, I'll have a short post on my overall feelings on hooks, sharing sentiments on how they might change the React community's best practices and looking at difficulties in adopting them.
+In this post, I will show how I refactored a search form from a "class based" approach to one that utilizes hooks. In a post to follow, I'll show the reusability of hooks, comparing them with other reuse patterns in React. Finally, I'll have a short post on my overall feelings on hooks, sharing sentiments on how they might change the React community's best practices and looking at difficulties in adopting them.
 
-If you haven't done so, I suggest reading the React docs on Hooks (TODO: link) before continuing with this post. The docs are fantastic and do a good job illustrating the motivation for the feature, their uses and caveats.
+If you haven't done so, I suggest reading the [React docs on hooks](https://reactjs.org/docs/hooks-intro.html) before continuing with this post. The docs are fantastic and do a good job illustrating the motivation for the feature, their uses and caveats you should be aware of.
 
 ## User Search
 
-Our feature we'll look at is your typical async search:
+The use case we'll look at is your typical async search:
 
 - Search by user id to render that user's information (name, email)
 - The search is an async call to our server (mocked in this exercise). As such, we want to show a loading indicator when the request is in progress
 - In case of an error, render the error message
 
-Pretty standard, right? Let's look at how we would implement this feature in React, starting with a class-based approach
+Pretty standard, right? Let's look at how we would implement this feature in React, starting with a class-based approach.
 
 ## [Old and Busted](https://www.youtube.com/watch?v=ha-uagjJQ9k&feature=youtu.be&t=20) - Class Component Approach
 
-The first snippet we'll look at is how we handle state within a React Component. Here's the code:
+The first snippet we'll look at is how we will handle state within our React component. Here's the code:
 
 ```jsx
 class UserSearch extends React.Component {
@@ -87,12 +85,12 @@ class UserSearch extends React.Component {
 
 Those experienced with React will find this old hat:
 
-- `searchTerm` state will be fully managed, so when a user types into the search box, we'll update component state `searchTerm` on each key stroke
-- when the user types, we wanna reset the `errorMessage` state, if anys
+- `searchTerm` state will be fully managed, so when a user types into the search box, we'll update component state `searchTerm` on each key stroke. This piece of state will be passed to the input element no each update
+- when the user types, we wanna reset the `errorMessage` state, if any
 - when the user submits the form, we'll use the current value of `searchTerm` to call our user service's `getUserById` method
 - since `getUserById` is an async call, the component will orchestrate the `isLoading`, `errorMessage` and `searchResult` state using Promise's `then` and `catch` API
 
-That's quite a bit of responsibility, and we haven't even looked at rendering (i.e. the presentation of data) yet. Let's do that now:
+That's quite a bit of responsibility, and we haven't even looked at rendering (i.e. the presentation of data in the UI) yet. Let's do that now:
 
 ```jsx
 class UserSearch extends React.Component {
@@ -144,22 +142,20 @@ class UserSearch extends React.Component {
 }
 ```
 
-Not much is surprising here, as we have a input element that is "attached" to the component's `handleSearchChange` callback. In addition, we have our form element's `onSubmit` handler and our button's `onClick` handler bound to the component's `handleSearchSubmit`. As far as displaying information to the end user, we have logic that pivots on the `isLoading`, `errorMessage` and `searchResult` state to render the appropriate content based on the current state.
-
-For the full code of this component, see here TODO: link to github
+To manage the `searchTerm` state, have an input element that is bound to the component's `handleSearchChange` property method. In addition, we have our form element's `onSubmit` handler and our button's `onClick` handler bound to the component's `handleSearchSubmit`. As far as displaying information to the end user, we have logic that pivots on the `isLoading`, `errorMessage` and `searchResult` state to render the appropriate content based on the current state.
 
 As previously mentioned, this component is doing a lot of work that's _not_ related to rendering content on the screen. It's handling the orchestration of loading state, error state and data fetching that is very common in applications that accept user input. If your eyes have glazed over a bit while reading this, I don't blame you.
 
-Well, wake up cuz we're gonna refactor this component to use hooks and revel in the fact that writing component code with inputs might be (slightly more) fun again.
+Well, wake up cuz we're gonna refactor this component to use hooks and revel in the fact that writing component code with inputs might be ~~fun again~~ less bad.
 
 ## New Hotness - Using Hooks
 
 First things first, we're going to move the following responsibilities out of the React component and into a hook called `useSearch`:
 
-- invoking `getUserInfoById` using the search term provided by the end user
+- invoking the user-service's `getUserInfoById` using the search term provided by the end user
 - orchestration of loading state, error state and search result
 
-So, in short, all activity related to the state of _fetching user data_ will be delegated to the `useSearch` hook. Here's the code:
+In short, all activity related to the state of _fetching user data_ will be delegated to the `useSearch` hook. Here's the code:
 
 ```js
 import React from 'react'
@@ -211,7 +207,7 @@ const searchReducer = (initialState, action) => {
 
 The interesting bits of this hook are the following:
 
-- `useReducer` - similar to `setState`, `useReducer` allows us to management non-arbitrary state in a React functional component. Using a similar pattern that we see in Redux, we can express our state as a switch statement that pivots on an action and data tied to that action. The result of the `useReducer` expression is the current state and a dispatch function (which is used to update state). In code, this is the `searchState` and `dispatch` variables, respectively
+- `useReducer` - similar to `setState`, `useReducer` allows us to manage non-arbitrary state in a React functional component. Using a similar pattern that we see in Redux, we can express our state as a switch statement that pivots on an action and data tied to that action. The result of the `useReducer` expression is the current state and a dispatch function (which is used to update state). In code, this is the `searchState` and `dispatch` variables, respectively
 - `resetErrorState` and `search` - these functions that are declared in the hook function body [close over](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures) the dispatch function. When invoked, they dispatch an action that updates this hook's state
 - hook return value - both the state and the hooks aforementioned updater functions are then returned as a [tuple](https://en.wikipedia.org/wiki/Tuple). These values can then be consumed by the calling function (i.e. React component) to render or update this hook's state
 
