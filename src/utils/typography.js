@@ -9,6 +9,8 @@ FairyGates.overrideThemeStyles = () => {
   }
 }
 
+FairyGates.baseFontSize = '16px'
+
 delete FairyGates.googleFonts
 
 const typography = new Typography(FairyGates)
