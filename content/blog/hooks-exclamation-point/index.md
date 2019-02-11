@@ -288,10 +288,13 @@ While we didn't necessarily reduce the number of lines of code, we effectively e
 
 ## Conclusion
 
-My initial impression when doing the above refactor was that I was thinking about state in terms of functions and closures and not in terms of class state, lifecycle methods or React patterns such as higher-order components. When implementing `useSearch`, it felt like I was writing normal javascript code without regard for how the function would be used.
+My initial impression when doing the above refactor was that I was thinking about state in terms of functions and closures and not in terms of class state, lifecycle methods or React patterns such as higher-order components. When implementing `useSearch`, it felt like I was writing normal javascript code without regard for how the function would be used. I believe this is the goal of hooks, to allow the developer to use refactor code how they normally would in Javascript; pull common pieces of logic into a function.
 
-And even if you are expressing logic in your app that will not be reused, splitting the logic of fetching, expressing loading state, error state etc. from presentation is worthwhile.
+While the above example didn't reduce the number of lines of code and the code in the `useSearch` hook will not (yet) be reused, splitting the logic of fetching, expressing loading state, error state etc. from presentation is worthwhile.
 
+In the next post in this series, we'll look at how hooks allow for easy reuse of logic and will compare them to existing patterns in the React community.
+
+<!--
 ## Next Post
 
-Now that we looked at a basic refactoring, moving from using JS class components to using hooks with functions, the next post in this series will look at how hooks allow for easy reuse of logic and will compare them to existing patterns in the React community.
+Now that we looked at a basic refactoring, moving from using JS class components to using hooks with functions,  -->
