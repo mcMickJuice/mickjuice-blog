@@ -31,7 +31,7 @@ Our feature we'll look at is your typical async search:
 - The search is an async call to our server (mocked in this exercise). As such, we want to show a loading indicator when the request is in progress
 - In case of an error, render the error message
 
-Pretty standard, right? Let's look at how we would implement this feature in React.
+Pretty standard, right? Let's look at how we would implement this feature in React, starting with a class-based approach
 
 ## [Old and Busted](https://www.youtube.com/watch?v=ha-uagjJQ9k&feature=youtu.be&t=20) - Class Component Approach
 
@@ -88,15 +88,15 @@ class UserSearch extends React.Component {
 Those experienced with React will find this old hat:
 
 - `searchTerm` state will be fully managed, so when a user types into the search box, we'll update component state `searchTerm` on each key stroke
-- when the user types, we wanna reset the `errorMessage` state, if any.
+- when the user types, we wanna reset the `errorMessage` state, if anys
 - when the user submits the form, we'll use the current value of `searchTerm` to call our user service's `getUserById` method
-- since `getUserById` is an async call, the component will orchestrate the `isLoading`, `errorMessage` and `searchResult` state.
+- since `getUserById` is an async call, the component will orchestrate the `isLoading`, `errorMessage` and `searchResult` state using Promise's `then` and `catch` API
 
-That's quite a bit of responsibility, and we haven't even looked at rendering (presentation of data) yet. Let's do that now:
+That's quite a bit of responsibility, and we haven't even looked at rendering (i.e. the presentation of data) yet. Let's do that now:
 
 ```jsx
 class UserSearch extends React.Component {
-  // previous shown component logic
+  // previous shown state management logic
 
   render() {
     const { searchTerm, isLoading, errorMessage, searchResult } = this.state
@@ -144,13 +144,13 @@ class UserSearch extends React.Component {
 }
 ```
 
-Not much is surprising here, as we have a input element that is "attached" to the component's `handleSearchChange` callback. In addition, we have our form element's `onSubmit` handler and our button's `onClick` handler bound to the component's `handleSearchSubmit`. As far as displaying information to the end user, we have logic that pivots on the `isLoading`, `errorMessage` and `searchResult` bits of logic.
+Not much is surprising here, as we have a input element that is "attached" to the component's `handleSearchChange` callback. In addition, we have our form element's `onSubmit` handler and our button's `onClick` handler bound to the component's `handleSearchSubmit`. As far as displaying information to the end user, we have logic that pivots on the `isLoading`, `errorMessage` and `searchResult` state to render the appropriate content based on the current state.
 
 For the full code of this component, see here TODO: link to github
 
 As previously mentioned, this component is doing a lot of work that's _not_ related to rendering content on the screen. It's handling the orchestration of loading state, error state and data fetching that is very common in applications that accept user input. If your eyes have glazed over a bit while reading this, I don't blame you.
 
-Well, wake up cuz we're gonna refactor this component to use hooks and revel in the fact that writing component code with inputs might be fun again. TODO: better way to write this?
+Well, wake up cuz we're gonna refactor this component to use hooks and revel in the fact that writing component code with inputs might be (slightly more) fun again.
 
 ## New Hotness - Using Hooks
 
@@ -162,11 +162,11 @@ First things first, we're going to move the following responsibilities out of th
 So, in short, all activity related to the state of _fetching user data_ will be delegated to the `useSearch` hook. Here's the code:
 
 ```js
-import { useReducer } from 'react'
+import React from 'react'
 import { getUserInfoById } from '../user-service'
 
 const useSearch = () => {
-  const [searchState, dispatch] = useReducer(searchReducer, {})
+  const [searchState, dispatch] = React.useReducer(searchReducer, {})
 
   function resetErrorState() {
     dispatch({ type: 'Initial' })
@@ -207,17 +207,22 @@ const searchReducer = (initialState, action) => {
       return initialState
   }
 }
-
-export default useSearch
 ```
 
-In this code I took a couple liberties with `async/await` and `useReducer` TODO: link to useReducer to allow for better async management and state management, respectively. One could just as easily use `Promise` syntax and `if/else` constructs to achieve as much.
+The interesting bits of this hook are the following:
 
-TODO: expand on this hook, talking specifically about the functions declared and how state and functions are returned from the function
+- `useReducer` - similar to `setState`, `useReducer` allows us to management non-arbitrary state in a React functional component. Using a similar pattern that we see in Redux, we can express our state as a switch statement that pivots on an action and data tied to that action. The result of the `useReducer` expression is the current state and a dispatch function (which is used to update state). In code, this is the `searchState` and `dispatch` variables, respectively
+- `resetErrorState` and `search` - these functions that are declared in the hook function body [close over](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures) the dispatch function. When invoked, they dispatch an action that updates this hook's state
+- hook return value - both the state and the hooks aforementioned updater functions are then returned as a [tuple](https://en.wikipedia.org/wiki/Tuple). These values can then be consumed by the calling function (i.e. React component) to render or update this hook's state
+
+In this code I took a couple liberties with `async/await` and [`useReducer`](https://reactjs.org/docs/hooks-reference.html#usereducer) to allow for better async and state management, respectively. One could just as easily use `Promise` syntax and `if/else` constructs to achieve as much.
 
 Now let's see how this hook is used in our React Component:
 
 ```jsx
+import React from 'react'
+import useSearch from './useSearch'
+
 const SearchForm = () => {
   const [userId, updateUserId] = React.useState('')
   const [isLoading, error, searchResult, searchUserId, reset] = useSearch()
@@ -270,16 +275,16 @@ const SearchForm = () => {
 }
 ```
 
-That's nicer! We still have nearly identical rendering of presentation logic, however we have removed all logic related to the actual fetching of data.
+That's nicer! We still have nearly identical rendering of presentation logic, however we have removed all logic related to the actual fetching of data. That logic is now encapsulated in the `useSearch` hook, which exposes its state and update functions by simply returning them as a tuple. These values are then used how we would normally handle passed in props. Moreover, we avoid using class properties or component state.
 
-But we are still managing the state of the search term that the user is entering...which is absolutely correct in this case. TODO: focus on `useState`
+Note also that this component is also managing it's own bit of state related to the the text input to collect a user id. This is accomplished using the `useState` hook which returns the current state value and an updated function.
 
-This component now has two responsibilites:
+After this refactor, this component now has two responsibilities:
 
 - collect user input
 - render results of searching for a user using said user input
 
-That's it! No boilerplate `handleSearchTerm` class properties that setState on the component. No rote state management around loading or error state (which is hard to read and an infamous spot for introducing form state bugs and inconsistencies). This component is laser focused on it's purpose.
+That's it! No boilerplate `handleSearchTerm` class properties that setState on the component. No rote state management code around loading or error state (which is hard to read and an infamous spot for introducing form state bugs and inconsistencies). This component is laser focused in it's purpose.
 
 In addition, there's a little less indirection and jumping around from the render functions input elements and the class component's handler functions; the code reads a little bit better from top to bottom.
 
@@ -287,8 +292,10 @@ While we didn't necessarily reduce the number of lines of code, we effectively e
 
 ## Conclusion
 
-Even if you are expressing logic in your app that will not be reused, splitting the logic of fetching, expressing loading state, error state etc from presentation is worthwhile.
+My initial impression when doing the above refactor was that I was thinking about state in terms of functions and closures and not in terms of class state, lifecycle methods or React patterns such as higher-order components. When implementing `useSearch`, it felt like I was writing normal javascript code without regard for how the function would be used.
+
+And even if you are expressing logic in your app that will not be reused, splitting the logic of fetching, expressing loading state, error state etc. from presentation is worthwhile.
 
 ## Next Post
 
-Now that we looked at a basic refactoring, moving from using JS class components to using hooks with functions, the next post in this series will look at how hooks allow for easy reuse of logic, comparing them to existing patterns in the React community.
+Now that we looked at a basic refactoring, moving from using JS class components to using hooks with functions, the next post in this series will look at how hooks allow for easy reuse of logic and will compare them to existing patterns in the React community.
