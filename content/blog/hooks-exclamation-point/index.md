@@ -13,11 +13,7 @@ Whatever the reasons, the community has been buzzing with excitement regarding t
 
 While many React devs have been experimenting with hooks since their announcement, I have largely ignored the feature until its release. On the morning of the 16.8 release ([the one with hooks](https://reactjs.org/blog/2019/02/06/react-v16.8.0.html)), I played around with hooks and even introduced them to an app of mine.
 
-And I fell in love.
-
-As a result of my excitement for this new feature, I wanted to write a few posts about my experience with React hooks.
-
-In this post, I will show how I refactored a search form from a class based approach to one that utilizes hooks. In a post to follow, I'll show the reusability of hooks, comparing them with other reuse patterns in React. Finally, I'll have a short post on my overall feelings on hooks, sharing sentiments on how they might change the React community's best practices and looking at difficulties in adopting them.
+And I fell in love.  As a result of my excitement for this new feature, I wanted to write a post that shows how I refactored a search form from a class based approach to one that utilizes hooks.
 
 If you haven't done so, I suggest reading the [React docs on hooks](https://reactjs.org/docs/hooks-intro.html) before continuing with this post. The docs are fantastic and do a good job illustrating the motivation for the feature, their uses and caveats you should be aware of.
 
@@ -296,11 +292,4 @@ My initial impression when doing the above refactor was that I was thinking abou
 
 I believe this is the main goal of hooks: allow the developer to refactor and (therefore reuse) code how they normally would in JavaScript by pulling common pieces of logic into a function.
 
-While the above example didn't reduce the number of lines of code and the code in the `useSearch` hook will not (yet) be reused, splitting the logic of fetching, expressing loading state, error state etc. from presentation is a worthwhile endeavor.
-
-In the next post in this series, we'll look at how hooks allow for easy reuse of logic by comparing them to existing patterns in the React community.
-
-<!--
-## Next Post
-
-Now that we looked at a basic refactoring, moving from using JS class components to using hooks with functions,  -->
+While the above example didn't reduce the number of lines of code and the code in the `useSearch` hook is not reused (though it easily could be), splitting the logic of fetching, expressing loading state, error state etc. from presentation is a worthwhile endeavor.
