@@ -3,9 +3,11 @@ title: 'GraphQL Exploration'
 date: '2020-04-05T15:00:00.000Z'
 ---
 
-_Following is an internal blog post I wrote up for my team at Target to convince the other engineers that we should adopt GraphQL. We were in the very early stages of a re-platforming of our internal CMS and were deciding on technologies to use._
+_Following is an internal blog post from 2019 that I wrote up for my team at Target to convince the other engineers that we should adopt GraphQL. We were in the very early stages of a re-platforming of our internal CMS and were deciding on technologies to use. We decided to move forward with GraphQL which was 100% the right decision given our application's needs_
 
-Over the past couple of weeks, I've been playing around with GraphQL, a specification for fetching data that is an alternative to REST.  In this post, I'd like to do a light comparison between GraphQL and REST, describe issues that we face on the client in regards to data fetching and provide examples of a functioning application that's built around the Slingshot domain in an effort to display the benefits that GraphQL can afford us.
+_Note: I removed references to our internal CMS's name and dependent services, hence the generic use of "CMS" and "Service X", "Service Y", etc_
+
+Over the past couple of weeks, I've been playing around with GraphQL, a specification for fetching data that is an alternative to REST.  In this post, I'd like to do a light comparison between GraphQL and REST, describe issues that we face on the client in regards to data fetching and provide examples of a functioning application that's built around the CMS domain in an effort to display the benefits that GraphQL can afford us.
 
 In short, GraphQL takes a "client-first" approach to data fetching where the client specifies exactly what data it needs via a GraphQL query (think SQL), sends this query to a GraphQL server and the server returns exactly that data back to the client.
 
@@ -31,7 +33,7 @@ The above friction points from the client perspective could be somewhat alleviat
 - a solution to avoid the above point might be building custom endpoints that return enough data to satisfy all of the aforementioned similar-but-different requests, but will likely result in overfetching from ALL data calls made by the client
 - there are still no assurances of the data contract between client and server
 
-These issues are greatly exacerbated as more and more services are required by the client to function.  It's worth noting that Slingshot UI suffers from each problem noted above.
+These issues are greatly exacerbated as more and more services are required by the client to function.  It's worth noting that the CMS UI suffers from each problem noted above.
 
 ## How does GraphQL help?
 
@@ -50,7 +52,7 @@ It's important to note that GraphQL is a specification, not a specific piece of 
 
 That's it!  GraphQL provides for authentication, tracing and all other functionality you'd expect for a service.
 
-## Why introduce GraphQL to Slingshot
+## Why introduce GraphQL to our CMS
 
 I believe that GraphQL will greatly simplify our client code and unlock some productivity boosts when implementing new features.  Most of the friction I've experienced when introducing new features is related to wiring up data on the client.  This work requires a lot of boilerplate related to redux:
 
@@ -58,7 +60,7 @@ I believe that GraphQL will greatly simplify our client code and unlock some pro
   for data calls that require child entities to be hydrated on the client (e.g. fetching treatment info tied to a given test),
 - there is a lot of coordination and N + 1 queries that need to be orchestrated on the client.  This code is not trivial and as such, requires tests to be written against them.  This distracts the developer from focusing on building a UI
 
-Due to the above points, much of the code in Slingshot UI is made up of logic related purely to data fetching and orchestration:
+Due to the above points, much of the code in the CMS UI is made up of logic related purely to data fetching and orchestration:
 
 | All Code              | LOC    | %    |
 | --------------------- | ------ | ---- |
@@ -77,35 +79,37 @@ As mentioned above, there is some complexity inherent to data fetching and orche
 
 GraphQL would eliminate the need for nearly all of this code as data fetching logic would be moved from the client to a GraphQL server.  It's important to note that Redux will likely not be needed if we migrate to GraphQL.
 
-<!-- RedOak Page Viewer - GraphQL POC Application
-To play around with GraphQL on the server and client, I added a feature to the admin-app that allows the user to search for a page in redoak and view information (slot information, component status, slot overrides) for a specific page slice.  This application consists of a server and client:
+## GraphQL POC Application
 
-redoak-graphql-server - GraphQL server that the admin-app's "page" feature depends on.  Follow the instructions in the readme to run the application locally
-admin-app - I've created a branch that includes a "Page"...page that contains the features mentioned above.  Note that this feature is on the "page-POC" branch 
+To play around with GraphQL on the server and client, I added a feature to our admin app that allows the user to search for a page in publishing service and view information (slot information, component status, slot overrides) for a specific page slice.  This application consists of a server and client:
+
+graphql-server - GraphQL server that the admin-app's "page" feature depends on.
+admin-app - I've created a branch that includes a "Page"...page that contains the features mentioned above.
+
 This example puts the features inherent to GraphQL (outlined above) on full display.  In short, the Page view shows data that spans multiple services and resources:
 
-RedOak
-component information including statuses, name and scheduling dates. 
-page refreshes, including slot information
-JIRA
-component statuses
-Sapphire
-test and treatment information
-Search
-allows access to our "omni-search" endpoint that we leverage in Slingshot
+- Publishing
+- Component information including statuses, name and scheduling dates.
+- Page refreshes, including slot information
+- A/B Testing
+- Site Search
+
 While this data is ultimately utilized by the client, the client has no idea which system the data came from, nor does it care. It simply issues a query to the GraphQL server detailing all the fields it needs.  The client has virtually zero logic related to fetching data, aside from code that describes the GraphQL query that is sent to the server. The server handles this query and performs the aggregation and orchestration in a reusable and elegant fashion.
 
-It is worth mentioning that, despite the fact this feature is not 100% fleshed out, it does include quite a bit of data and somewhat mirrors the UI on the page planner page in Slingshot UI.  And it achieves this with much, much less code:
+It is worth mentioning that, despite the fact this feature is not 100% fleshed out, it does include quite a bit of data and closely mirrors the current CMS UI.
 
-the client feature is composed of 9-10 files, mostly React components
-the service is composed of 4 files
-neither the client nor the server contain tests . Though looking at the code, testing these features both on client and server should be trivial.
-A big takeaway from the above information is that a relatively rich application feature can be achieved with a small amount of code. And while we do need both a client and server to achieve this feature, there is a better separation of concerns in the application stack where the client can focus purely on UI rendering and the server focuses on responding to a request and fetching/aggregating only the data the client needs based on said request. -->
+And it achieves this with much, much less code:
 
-## Why shouldn't we introduce GraphQL to Slingshot
+-the client feature is composed of 9-10 files, mostly React components
+-the service is composed of 4 files
+-neither the client nor the server contain tests . Though looking at the code, testing these features both on client and server should be trivial.
 
-I don't know! I'm still in the early phases of learning about the technology.  My plan is to meet with a couple engineers at Target that use GraphQL in their products and get their feedback and experiences on the technology.  Based on this feedback and further investigation into the tech, there might be additional reasons not to switch to GraphQL
+A big takeaway from the above information is that a relatively rich application feature can be achieved with a small amount of code on the frontend. And while we do need both a client and server to achieve this feature, there is a better separation of concerns in the application stack where the client can focus purely on UI rendering and the server focuses on responding to a request and fetching/aggregating only the data the client needs based on said request.
 
-## Next Steps
+## Conclusion
 
-I've shared some of this information with Marc and Joe to get their input from a services perspective.  They are looking at Spring implementations to see how it would fit in our stack. I'd like to demo the above admin app feature to the team to show how GraphQL is used on the client and how it can potentially simplify certain aspects of Slingshot.  Based on how everyone's feeling we can flesh out a plan of attack on migrating to GraphQL and how it relates to our 2019 goals related to replatforming Slingshot.
+_This is me, today, commenting on the decision to adopt GraphQL in our platform. Following was not in the original post to my team_
+
+The adoption of GraphQL in our platform rewrite _greatly_ improved the developer experience in the UI as well as allowed a healthy separation between frontend and backend in regards to data fetching. It also promoted an effective approach to new features where UI engineers and backend engineers would discuss schema design and, upon agreement, would go to their respective codebases and develop against this contract.
+
+Adoption of GraphQL was not without its pitfalls, false starts and refactorings; all of which I hope to capture in a future post. However, the benefits far exceed the drawbacks and allowed us to deliver a ton of useful features in less time than if we continued down the Redux path we were previously on.
