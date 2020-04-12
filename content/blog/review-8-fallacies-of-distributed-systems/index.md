@@ -7,7 +7,7 @@ date: '2020-04-12T17:40:00Z'
 
 ## Overview
 
-The author presents the 8 Fallacies of Distributed Systems in the following format:
+The author, [Victor Chircu](https://dzone.com/users/1239283/victor.chircu.html), presents the 8 Fallacies of Distributed Systems in the following format:
 
 - describing the fallacy
 - why an engineer must be cognizant of said fallacy
@@ -17,6 +17,6 @@ This makes for a concise and useful article for those engineers that work on dis
 
 ## Key Takeaways
 
-- accommodating for lack fo network reliability is a hard problem, with retries and queuing presenting problems of their own.
+- accommodating for lack of network reliability is a hard problem, with retries and queuing presenting problems of their own.
 - you should treat systems that are outside of your control differently than components that you own.
-- each point presented reinforces that assertion that designing distributed systems is hard.
+- each point presented reinforces the assertion that designing distributed systems is hard.
